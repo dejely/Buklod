@@ -1,50 +1,59 @@
-# Welcome to your Expo app 👋
+# Offline Mesh Network Prototype
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Android-first Expo development build prototype for offline multi-hop text chat using Google Nearby Connections and a custom Expo native module.
 
-## Get started
+## Architecture
 
-1. Install dependencies
+- `modules/expo-nearby-connections`: local Expo module with the Android Kotlin bridge for Nearby advertising, discovery, connection lifecycle, and byte payload exchange.
+- `plugins/withNearbyConnections.js`: config plugin that injects Android permissions and Bluetooth feature flags during prebuild.
+- `src/mesh/useMeshChat.ts`: relay logic in TypeScript with `messageId`, `ttl`, `hopCount`, a seen-message cache, and flooding to connected peers except the sender.
+- `app/index.tsx`: single-screen debug UI for discovering peers, connecting, sending messages, and viewing logs.
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run Locally
 
 ```bash
-npm run reset-project
+cd my-app
+npm install
+npm run prebuild:android
+npm run android
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Notes:
 
-## Learn more
+- Use a development build, not Expo Go.
+- The `npm run android`, `npm run android:device`, and `npm run prebuild:android` scripts force the verified JDK 17 and Android SDK paths on this machine.
+- `android/local.properties` now points Gradle at `/home/dejel/Android/sdk` for this workspace.
+- Re-run `npm run prebuild:android` after changing native Kotlin or Android config/plugin code.
+- Use `npm run android:device` to target a connected physical Android phone.
+- Verified debug APK output: `android/app/build/outputs/apk/debug/app-debug.apk`
 
-To learn more about developing your project with Expo, look at the following resources:
+## Bundle A Standalone APK
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Use this when you want the app to open without Metro or Wi-Fi access to your laptop.
 
-## Join the community
+```bash
+cd my-app
+npm run apk:release
+```
 
-Join our community of developers creating universal apps.
+APK output:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `android/app/build/outputs/apk/release/app-release.apk`
+
+Notes:
+
+- This is the correct build for an offline demo. The release APK embeds the JS bundle.
+- The debug development build at `android/app/build/outputs/apk/debug/app-debug.apk` still expects Metro.
+- The generated release APK is signed with the debug keystore in this prototype, which is acceptable for local demo installs but not for production.
+
+## 3-Device Demo Flow
+
+1. On all three phones, install the development build and grant Nearby/Bluetooth permissions.
+2. On device A, tap `Start Advertising`.
+3. On device C, tap `Start Advertising`.
+4. On device B, tap `Start Advertising`, then `Start Discovery`.
+5. On device B, use the discovered endpoint list to connect to A and C.
+6. On device A, send a message.
+7. Confirm B logs `Payload received` and `Forwarded`.
+8. Confirm C receives the same message with the UI label showing a lower `ttl` and higher `hopCount` than A's original send.
