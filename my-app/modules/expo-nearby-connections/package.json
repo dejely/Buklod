@@ -1,0 +1,11 @@
+{
+  "name": "expo-nearby-connections",
+  "version": "1.0.0",
+  "description": "Local Expo module wrapping Google Nearby Connections for Android development builds.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "sideEffects": false,
+  "peerDependencies": {
+    "expo": "*"
+  }
+}

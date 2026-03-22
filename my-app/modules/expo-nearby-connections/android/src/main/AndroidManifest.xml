@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+      The host app manifest receives the runtime permissions and feature flags
+      via the Expo config plugin. This library manifest stays intentionally small.
+    -->
+</manifest>
