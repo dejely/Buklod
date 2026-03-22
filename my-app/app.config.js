@@ -1,10 +1,10 @@
-const APP_ID = 'com.dejel.offlinemeshnetwork';
+const APP_ID = 'com.dejel.buklod';
 
 module.exports = {
   expo: {
-    name: 'Offline Mesh Network',
-    slug: 'offline-mesh-network',
-    version: '1.0.0',
+    name: 'Buklod',
+    slug: 'Buklod',
+    version: '1.1.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
     scheme: 'offlinemeshnetwork',
